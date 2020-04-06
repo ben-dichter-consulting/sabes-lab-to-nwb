@@ -1,1 +1,20 @@
-
+name: sabes_nwb
+channels:
+- defaults
+- anaconda
+- conda-forge
+dependencies:
+- python=3.7
+- pip
+- numpy
+- pip:
+  - ipython
+  - scipy
+  - pyside2
+  - cycler
+  - h5py
+  - pynwb
+  - hdmf
+  - nwbn-conversion-tools
+  - ndx-fret
+  - -e .
