@@ -58,11 +58,10 @@ electrode_group_M1 = ElectrodeGroup(name='ElectrodeArray_M1', description="96 Ch
 
 # Add metadata about each electrode in the group
 for idx in np.arange(96):
-    nwb.add_electrode(id=idx,
-                          x=np.nan, y=np.nan, z=np.nan,
-                          imp=np.nan,
-                          location='M1', filtering='none',
-                          group=electrode_group_M1)
+    nwb.add_electrode(x=np.nan, y=np.nan, z=np.nan,
+                      imp=np.nan,
+                      location='M1', filtering='none',
+                      group=electrode_group_M1)
 
 
 # S1
@@ -78,11 +77,56 @@ electrode_group_S1 = ElectrodeGroup(name='ElectrodeArray_S1', description="96 Ch
 
 # Add metadata about each electrode in the group
 for idx in np.arange(96):
-    nwb.add_electrode(id=idx,
-                          x=np.nan, y=np.nan, z=np.nan,
-                          imp=np.nan,
-                          location='S1', filtering='none',
-                          group=electrode_group_S1)
+    nwb.add_electrode(x=np.nan, y=np.nan, z=np.nan,
+                      imp=np.nan,
+                      location='S1', filtering='none',
+                      group=electrode_group_S1)
+
+
+#Store unsorted spike waveforms data in acquisition group
+
+
+# M1
+
+# Create electrode table region
+electrode_table_region_M1 = nwb.create_electrode_table_region(list(range(96)), 'the 96 electrodes in the array M1')
+
+# Create SpikeEventSeries container to store unsorted spike waveform data.
+description = 'Unsorted spike event waveform "snippets". Each waveform corresponds to a timestamp in "spikes".'
+comments = 'Waveform samples are in microvolts.'
+ephys_ts_M1 = SpikeEventSeries(name='M1 Spike Events',
+                            data=f_info['wf'][0:96,:][:,0],
+                            timestamps=f_info['spikes'][0:96,:][:,0],
+                            electrodes=electrode_table_region_M1,
+                            resolution=4.096e-05,
+                            conversion=1e-6,
+                            description=description,
+                            comments=comments)
+
+nwb.add_acquisition(ephys_ts_M1)
+
+
+# S1
+
+# Create electrode table region
+electrode_table_region_S1 = nwb.create_electrode_table_region(list(range(96)), 'the 96 electrodes in the array S1')
+
+# Create SpikeEventSeries container to store unsorted spike waveform data.
+description = 'Unsorted spike event waveform "snippets". Each waveform corresponds to a timestamp in "spikes".'
+comments = 'Waveform samples are in microvolts.'
+ephys_ts_S1 = SpikeEventSeries(name='S1 Spike Events',
+                            data=f_info['wf'][96:192,:][:,0],
+                            timestamps=f_info['spikes'][96:192,:][:,0],
+                            electrodes=electrode_table_region_S1,
+                            resolution=4.096e-05,
+                            conversion=1e-6,
+                            description=description,
+                            comments=comments)
+
+nwb.add_acquisition(ephys_ts_S1)
+
+# Check the stored data
+print(nwb.acquisition)
 
 
 # Associate electrodes with units
@@ -91,18 +135,16 @@ nwb.add_unit_column('waveform_snippets', 'spike event waveform snippets')
 
 # M1
 for j in np.arange(96):
-    nwb.add_unit(id=1,electrodes=[j],spike_times=np.ravel(f_info['spikes'][0:96,:][j,0]),electrode_group=electrode_group_M1,
-                waveform_snippets=f_info['wf'][0:96,:][j,0])
-    nwb.add_unit(id=2,electrodes=[j],spike_times=np.ravel(f_info['spikes'][0:96,:][j,1]),electrode_group=electrode_group_M1,
+    
+    nwb.add_unit(electrodes=[j],spike_times=np.ravel(f_info['spikes'][0:96,:][j,1]),electrode_group=electrode_group_M1,
                 waveform_snippets=f_info['wf'][0:96,:][j,1])
-    nwb.add_unit(id=3,electrodes=[j],spike_times=np.ravel(f_info['spikes'][0:96,:][j,2]),electrode_group=electrode_group_M1,
+    nwb.add_unit(electrodes=[j],spike_times=np.ravel(f_info['spikes'][0:96,:][j,2]),electrode_group=electrode_group_M1,
                 waveform_snippets=f_info['wf'][0:96,:][j,2])
 
 # S1
 for j in np.arange(96):
-    nwb.add_unit(id=1,electrodes=[j],spike_times=np.ravel(f_info['spikes'][96:192,:][j,0]),electrode_group=electrode_group_S1,
-                waveform_snippets=f_info['wf'][96:192,:][j,0])
-    nwb.add_unit(id=2,electrodes=[j],spike_times=np.ravel(f_info['spikes'][96:192,:][j,1]),electrode_group=electrode_group_S1,
+    
+    nwb.add_unit(electrodes=[j],spike_times=np.ravel(f_info['spikes'][96:192,:][j,1]),electrode_group=electrode_group_S1,
                 waveform_snippets=f_info['wf'][96:192,:][j,1])
-    nwb.add_unit(id=3,electrodes=[j],spike_times=np.ravel(f_info['spikes'][96:192,:][j,2]),electrode_group=electrode_group_S1,
+    nwb.add_unit(electrodes=[j],spike_times=np.ravel(f_info['spikes'][96:192,:][j,2]),electrode_group=electrode_group_S1,
                 waveform_snippets=f_info['wf'][96:192,:][j,2])
