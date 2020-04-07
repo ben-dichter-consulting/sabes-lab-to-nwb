@@ -2,16 +2,14 @@
 
 import numpy as np
 import datetime
-from dateutil.tz import tzlocal
 import pytz
 import h5py
-from hdmf.backends.hdf5 import H5DataIO
 import hdf5storage
 import os
-from pynwb import NWBFile, NWBHDF5IO, ProcessingModule
+from pynwb import NWBFile, NWBHDF5IO
 from pynwb.device import Device
-from pynwb.base import TimeSeries
 from pynwb.ecephys import ElectrodeGroup, SpikeEventSeries
+from pynwb.behavior import Position, SpatialSeries
 
 
 # Load the .mat files containing sorted spikes
@@ -52,7 +50,7 @@ device_M1 = Device('Recording_Device_M1')
 nwb.add_device(device_M1)
 
 # Create electrode group
-electrode_group_M1 = ElectrodeGroup(name='ElectrodeArrayM1', description="96 Channels Electrode Array", 
+electrode_group_M1 = nwb.create_electrode_group(name='ElectrodeArrayM1', description="96 Channels Electrode Array", 
                                     location="Motor Cortex", 
                                     device=device_M1)
 
@@ -71,7 +69,7 @@ device_S1 = Device('Recording_Device_S1')
 nwb.add_device(device_S1)
 
 # Create electrode group
-electrode_group_S1 = ElectrodeGroup(name='ElectrodeArrayS1', description="96 Channels Electrode Array", 
+electrode_group_S1 = nwb.create_electrode_group(name='ElectrodeArrayS1', description="96 Channels Electrode Array", 
                                     location="Somatosensory Cortex", 
                                     device=device_S1)
 
@@ -174,6 +172,49 @@ for j in np.arange(96,192):
     nwb.add_unit(electrodes=[j],spike_times=np.ravel(f_info['spikes'][j,1]),electrode_group=electrode_group_S1)
     nwb.add_unit(electrodes=[j],spike_times=np.ravel(f_info['spikes'][j,2]),electrode_group=electrode_group_S1)
 
+
+
+# Add behavioral information
+
+
+# SpatialSeries and Position data interfaces to store cursor_pos
+cursor_pos = SpatialSeries(name='cursor_position', data=f_info['cursor_pos'], 
+                           reference_frame='0,0', conversion=1e-3, resolution=1e-17, 
+                           timestamps=np.ravel(f_info['t']), 
+                           description='The position of the cursor in Cartesian coordinates (x, y) in mm')
+
+cursor_position = Position(name='CursorPosition',spatial_series=cursor_pos)
+
+
+# SpatialSeries and Position data interfaces to store finger_pos
+finger_pos = SpatialSeries(name='finger_position', data=f_info['finger_pos'],
+                           reference_frame='0,0', conversion=1e-2, resolution=1e-17, 
+                           timestamps=np.ravel(f_info['t']), 
+                           description='The position of the working fingertip in Cartesian coordinates (z, -x, -y), as reported by the hand tracker in cm')
+
+finger_position = Position(name='FingerPosition',spatial_series=finger_pos)
+
+
+# SpatialSeries and Position data interfaces to store target_pos
+target_pos = SpatialSeries(name='target_position', data=f_info['target_pos'],
+                           reference_frame='0,0', conversion=1e-3, resolution=1e-17, 
+                           timestamps=np.ravel(f_info['t']), 
+                           description='The position of the target in Cartesian coordinates (x, y) in mm')
+
+target_position = Position(name='TargetPosition',spatial_series=target_pos)
+
+
+
+# Create ProcessingModule add it to the nwb file
+behavior_module = nwb.create_processing_module(name='behavior',
+                                                   description='preprocessed position data')
+
+# Add data interfaces to the ProcessingModule
+nwb.processing['behavior'].add(cursor_position)
+nwb.processing['behavior'].add(finger_position)
+nwb.processing['behavior'].add(target_position)
+
+print(nwb.processing)
 
 # Save NWB to file:
 
