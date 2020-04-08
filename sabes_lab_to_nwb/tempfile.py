@@ -35,7 +35,7 @@ nwb = NWBFile(session_description='Multichannel Sensorimotor Cortex Electrophysi
               experimenter='Joseph E. ODoherty',
               lab='Sabes lab',
               institution='University of California, San Francisco',
-              experiment_description='experiment_description',
+              experiment_description=experiment_description,
               session_id='indy_20160407_02')
 
 
