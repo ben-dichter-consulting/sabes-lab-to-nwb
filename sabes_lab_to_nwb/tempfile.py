@@ -8,7 +8,7 @@ import hdf5storage
 import os
 from pynwb import NWBFile, NWBHDF5IO
 from pynwb.device import Device
-from pynwb.ecephys import ElectrodeGroup, SpikeEventSeries
+from pynwb.ecephys import SpikeEventSeries
 from pynwb.behavior import Position, SpatialSeries
 
 
