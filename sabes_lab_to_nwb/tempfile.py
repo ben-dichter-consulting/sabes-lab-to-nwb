@@ -22,7 +22,6 @@ fpath0 = os.path.join(path_to_files, fname0)
 f_info = hdf5storage.loadmat(fpath0)
 #f_info = h5py.File(fpath0)
 info = f_info.keys()
-#f_info['spikes']
 
 
 # Create a new NWB file instance
